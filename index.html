@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Симулятор Цивилизации v6.0</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="root">
+  <div class="screen-wrap" id="sw">
+
+    <!-- ══ SCREEN: GAME ══ -->
+    <div id="s-game" class="screen active">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Симулятор Цивилизации v6.0 ⚜</div>
+        <div class="pg-crest" id="g-crest">⚔️</div>
+        <div class="pg-title" id="g-ruler">Правитель</div>
+        <div class="pg-sub"   id="g-age-sub">Начните новую партию</div>
+      </div>
+
+      <div class="year-strip">
+        <div class="yr-block">
+          <div class="yr-lbl">Год правления</div>
+          <div class="yr-val" id="g-year">—</div>
+        </div>
+        <div class="yr-sep"></div>
+        <div class="yr-age-block">
+          <span class="yr-age-em" id="g-age-em">⚔️</span>
+          <div  class="yr-age-nm" id="g-age-nm">—</div>
+        </div>
+      </div>
+
+      <div class="sect">
+        <div class="sect-title">⚜ Состояние державы</div>
+        <div class="stat-trio">
+          <div class="stat-row">
+            <span class="stat-ico">🏛</span>
+            <span class="stat-lbl">Стабильность</span>
+            <div class="stat-track"><div class="stat-fill sf-s" id="sf-s" style="width:75%"></div></div>
+            <span class="stat-val" id="sv-s">75</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-ico">🌾</span>
+            <span class="stat-lbl">Ресурсы</span>
+            <div class="stat-track"><div class="stat-fill sf-r" id="sf-r" style="width:80%"></div></div>
+            <span class="stat-val" id="sv-r">80</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-ico">💰</span>
+            <span class="stat-lbl">Казна</span>
+            <div class="stat-track"><div class="stat-fill sf-m" id="sf-m" style="width:70%"></div></div>
+            <span class="stat-val" id="sv-m">70</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bonus-ticker hidden" id="bonus-ticker">
+        <span>⚡ Бонусы:</span>
+        <div class="bonus-chips" id="bonus-chips"></div>
+      </div>
+
+      <div class="age-banner hidden" id="age-banner">
+        <div class="age-banner-title">⚜ Новая эпоха</div>
+        <div class="age-banner-name" id="age-banner-name">—</div>
+      </div>
+
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+
+      <!-- Newspaper teaser (every 10 years) -->
+      <div class="newspaper-teaser hidden" id="np-teaser" onclick="openNewspaper()">
+        <div class="np-tag">📰 Государственный вестник</div>
+        <div class="np-headline" id="np-teaser-headline">—</div>
+        <div class="np-byline">Нажмите, чтобы прочитать полный выпуск →</div>
+      </div>
+
+      <!-- Event card -->
+      <div class="ev-card ev-event" id="ev-card">
+        <div class="ev-type-bar"></div>
+        <div class="ev-head">
+          <div class="ev-tag" id="ev-tag">📜 Событие</div>
+          <div class="ev-title" id="ev-title">Начало правления</div>
+        </div>
+        <div class="ev-body">
+          <div class="ev-text" id="ev-text">Ваше правление начинается. Народ ждёт мудрых решений.</div>
+        </div>
+        <div class="ev-court" id="ev-court">
+          <div class="ev-court-ava" id="ev-court-ava">🧙</div>
+          <div>
+            <div class="ev-court-txt"  id="ev-court-txt">«Государь, судьба державы в ваших руках.»</div>
+            <div class="ev-court-name" id="ev-court-nm">Советник</div>
+          </div>
+        </div>
+        <div class="hint-reveal hidden" id="hint-reveal">
+          🔮 Подсказка советника активна — эффекты выборов отображены
+        </div>
+      </div>
+
+      <div class="gap"></div>
+      <div class="choices" id="choices"></div>
+      <div class="gap"></div>
+    </div><!-- /s-game -->
+
+    <!-- ══ SCREEN: NEW GAME ══ -->
+    <div id="s-new" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Новая партия ⚜</div>
+        <div class="pg-crest">👑</div>
+        <div class="pg-title">Выбор пути</div>
+        <div class="pg-sub">Имя и сценарий определят судьбу державы</div>
+      </div>
+
+      <label class="ruler-lbl" for="ruler-inp">Имя правителя</label>
+      <input type="text" id="ruler-inp" class="ruler-input" placeholder="Введите имя…" maxlength="28" autocomplete="off" autocorrect="off" spellcheck="false">
+
+      <div style="padding:0 14px 10px">
+        <div class="sect-title" style="padding:0">⚜ Сценарий</div>
+      </div>
+      <div class="scenario-grid" id="sc-grid"></div>
+
+      <button class="start-btn" onclick="G.startGame()">⚔️ &nbsp; Начать правление</button>
+    </div><!-- /s-new -->
+
+    <!-- ══ SCREEN: TECHNOLOGIES ══ -->
+    <div id="s-tech" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Древо знаний ⚜</div>
+        <div class="pg-crest">🔬</div>
+        <div class="pg-title">Технологии</div>
+        <div class="pg-sub" id="tech-sub">Исследуйте открытия своей эпохи</div>
+      </div>
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+      <div id="tech-tree-wrap"></div>
+    </div><!-- /s-tech -->
+
+    <!-- ══ SCREEN: WAR & DIPLOMACY ══ -->
+    <div id="s-war" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Дипломатия ⚜</div>
+        <div class="pg-crest">🗺️</div>
+        <div class="pg-title">Соседние государства</div>
+        <div class="pg-sub">Войны, союзы и переговоры</div>
+      </div>
+
+      <div class="sect">
+        <div class="sect-title">⚜ Военная мощь державы</div>
+        <div class="stat-trio">
+          <div class="stat-row">
+            <span class="stat-ico">⚔️</span>
+            <span class="stat-lbl">Мощь</span>
+            <div class="stat-track"><div class="stat-fill" id="war-power-fill" style="width:60%;background:linear-gradient(90deg,#1a2a6c,#4488cc)"></div></div>
+            <span class="stat-val" id="war-power-val">60</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--parch-dim);font-style:italic;margin-top:8px" id="war-alliances-info">Активных союзов: 0</div>
+      </div>
+
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+      <div id="neighbors-wrap"></div>
+    </div><!-- /s-war -->
+
+    <!-- ══ SCREEN: CHRONICLE ══ -->
+    <div id="s-chron" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Летопись ⚜</div>
+        <div class="pg-crest">📜</div>
+        <div class="pg-title">Хроники правления</div>
+        <div class="pg-sub" id="chron-ruler-sub">—</div>
+      </div>
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+      <div id="chronicle-wrap"></div>
+    </div><!-- /s-chron -->
+
+    <!-- ══ SCREEN: PROFILE ══ -->
+    <div id="s-prof" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Профиль ⚜</div>
+        <div class="pg-crest">📊</div>
+        <div class="pg-title">Статистика</div>
+        <div class="pg-sub">История всех правлений</div>
+      </div>
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+
+      <div class="sect">
+        <div class="sect-title">⚜ Правитель</div>
+        <div class="ruler-title-name" id="prof-ruler">—</div>
+        <div class="stat-grid-2x2">
+          <div class="sg-cell"><span class="sg-val" id="pr-yr">—</span><span class="sg-lbl">Год правления</span></div>
+          <div class="sg-cell"><span class="sg-val" id="pr-rec">0</span><span class="sg-lbl">Рекорд лет</span></div>
+          <div class="sg-cell"><span class="sg-val" id="pr-gm">0</span><span class="sg-lbl">Партий</span></div>
+          <div class="sg-cell"><span class="sg-val" id="pr-ac">0</span><span class="sg-lbl">Достижений</span></div>
+        </div>
+        <div class="milestone-bar" style="margin-top:14px">
+          <div class="ms-top">
+            <span class="ms-lbl" id="ms-lbl">До следующей вехи</span>
+            <span class="ms-val" id="ms-val">—</span>
+          </div>
+          <div class="ms-track"><div class="ms-fill" id="ms-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="sect">
+        <div class="sect-title">🎭 Стиль правления</div>
+        <div class="style-badge">
+          <div class="sb-em" id="sb-em">⚖️</div>
+          <div>
+            <div class="sb-title" id="sb-title">Мудрый Правитель</div>
+            <div class="sb-desc"  id="sb-desc">Баланс во всём</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sect">
+        <div class="sect-title">🎖️ Достижения (<span id="ach-count">0</span>/27)</div>
+        <div class="ach-grid" id="ach-grid"></div>
+      </div>
+    </div><!-- /s-prof -->
+
+    <!-- ══ SCREEN: SHOP ══ -->
+    <div id="s-shop" class="screen">
+      <div class="pg-head">
+        <div class="pg-eyebrow">⚜ Лавка правителя ⚜</div>
+        <div class="pg-crest">⭐</div>
+        <div class="pg-title">Особые привилегии</div>
+        <div class="pg-sub">Telegram Stars — эксклюзивные возможности</div>
+      </div>
+      <div class="gold-div"><div class="gold-div-line"></div><div class="gold-div-gem"></div><div class="gold-div-line"></div></div>
+
+      <div class="shop-item">
+        <div class="sh-ico">💫</div>
+        <div class="sh-info">
+          <div class="sh-nm">Дополнительная жизнь</div>
+          <div class="sh-ds">Продолжите игру после поражения</div>
+        </div>
+        <button class="sh-btn" onclick="G.buy('life')">25 ⭐</button>
+      </div>
+      <div class="shop-item">
+        <div class="sh-ico">👑</div>
+        <div class="sh-info">
+          <div class="sh-nm">Премиум-режим</div>
+          <div class="sh-ds">Разблокируйте все 5 сценариев навсегда</div>
+        </div>
+        <button class="sh-btn" onclick="G.buy('premium')">50 ⭐</button>
+      </div>
+      <div class="shop-item">
+        <div class="sh-ico">🔮</div>
+        <div class="sh-info">
+          <div class="sh-nm">Подсказка советника</div>
+          <div class="sh-ds">Видеть эффекты всех выборов заранее</div>
+        </div>
+        <button class="sh-btn" onclick="G.buy('hint')">10 ⭐</button>
+      </div>
+      <div class="shop-item">
+        <div class="sh-ico">💎</div>
+        <div class="sh-info">
+          <div class="sh-nm">VIP-статус</div>
+          <div class="sh-ds">Уникальный скин + турниры + 3 жизни</div>
+        </div>
+        <button class="sh-btn" onclick="G.buy('vip')">150 ⭐</button>
+      </div>
+      <div class="gap"></div>
+      <div style="padding:0 20px;text-align:center">
+        <div style="font-size:12.5px;color:var(--parch-dim);font-style:italic;line-height:1.65">
+          Покупки привязаны к вашему Telegram-аккаунту.<br>
+          По вопросам — обратитесь через бот @CivSimBot
+        </div>
+      </div>
+      <div class="gap"></div>
+    </div><!-- /s-shop -->
+
+  </div><!-- /screen-wrap -->
+
+  <!-- NAV BAR -->
+  <nav class="nav-bar" id="nav-bar">
+    <button class="nav-btn active" id="nb-game"  onclick="G.nav('game')">  <span class="nav-ico">⚔️</span>Игра</button>
+    <button class="nav-btn"        id="nb-new"   onclick="G.nav('new')">   <span class="nav-ico">🗺️</span>Новая</button>
+    <button class="nav-btn"        id="nb-tech"  onclick="G.nav('tech')">  <span class="nav-ico">🔬</span>Технол.</button>
+    <button class="nav-btn"        id="nb-war"   onclick="G.nav('war')">   <span class="nav-ico">⚔️</span>Война</button>
+    <button class="nav-btn"        id="nb-chron" onclick="G.nav('chron')"> <span class="nav-ico">📜</span>Летопись</button>
+    <button class="nav-btn"        id="nb-prof"  onclick="G.nav('prof')">  <span class="nav-ico">📊</span>Профиль</button>
+    <button class="nav-btn"        id="nb-shop"  onclick="G.nav('shop')">  <span class="nav-ico">⭐</span>Лавка</button>
+  </nav>
+</div><!-- /root -->
+
+<!-- RESULT DRAWER -->
+<div class="result-bg hidden" id="res-bg">
+  <div class="result-sheet">
+    <div class="res-title">⚜ Результат выбора ⚜</div>
+    <div class="res-text"   id="res-text">…</div>
+    <div class="res-deltas" id="res-deltas"></div>
+    <button class="res-next" onclick="G.closeResult()">Следующий год →</button>
+  </div>
+</div>
+
+<!-- NEWSPAPER MODAL -->
+<div class="modal-bg hidden" id="np-modal">
+  <div class="modal-sheet">
+    <div class="modal-close-bar">
+      <button class="modal-close-btn" onclick="G.closeNewspaper()">✕ Закрыть</button>
+    </div>
+    <div id="np-content"></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-bg hidden" id="conf-bg">
+  <div class="confirm-box">
+    <div class="conf-title"  id="conf-title">Подтверждение</div>
+    <div class="conf-desc"   id="conf-desc">…</div>
+    <div class="conf-btns">
+      <button class="conf-btn conf-cancel" onclick="G.closeConfirm()">Отмена</button>
+      <button class="conf-btn conf-ok"     id="conf-ok-btn">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="go-screen hidden" id="go-screen">
+  <div class="go-ico"    id="go-ico">💀</div>
+  <div class="go-title">Конец правления</div>
+  <div class="go-ruler"  id="go-ruler">—</div>
+  <div class="go-years"  id="go-years">0</div>
+  <div class="go-yrlbl">лет у власти</div>
+  <div class="go-reason" id="go-reason">Держава пала.</div>
+  <div class="go-stats"  id="go-stats"></div>
+  <div class="go-btns">
+    <button class="go-btn go-btn-1" onclick="G.goNewGame()">⚔️ Новая партия</button>
+    <button class="go-btn go-btn-2" onclick="G.goShare()">📤 Поделиться</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
